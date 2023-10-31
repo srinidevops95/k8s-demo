@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres  
+  serviceName: postgres-service      
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          resources:
+            requests:
+              cpu: "6"
+              memory: "24Gi"
+            limits:
+              cpu: "6"
+              memory: "24Gi"
+          args: ["-c", "shared_buffers=20GB", "-c", "max_connections=620","-c", "work_mem=128MB","-c","log_directory=/var/lib/postgresql/data/log","-c", "logging_collector=on","-c","max_worker_processes=6","-c","checkpoint_completion_target=0.9" ,"-c","log_min_duration_statement=15s","-c","temp_tablespaces=temp","-c","temp_buffers=128MB","-c","max_wal_size=15GB","-c","min_wal_size=1GB"]
+          image: postgres:14.2
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgredb
+      nodeSelector:
+        disktype: ssd      
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: ebs-postgres-pv-claim
