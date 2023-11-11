@@ -1,3 +1,5 @@
+kubeclt cheat sheet - https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
 1. Nodes:
     $ kubectl get no
     $ kubectl get no -o wide
